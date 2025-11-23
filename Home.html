@@ -1,0 +1,388 @@
+<html lang="en"><head><base target="_blank">
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial Black', sans-serif;
+            overflow: hidden;
+            text-align: center;
+            perspective: 1500px;
+            perspective-origin: 50% 50%;
+        }
+        .neon-text {
+            font-size: 60px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #ff4500;
+            animation: neonGlow 4s ease-in-out infinite alternate;
+            margin-bottom: 20px;
+            transform-style: preserve-3d;
+            transform-origin: center center;
+            will-change: transform;
+            text-shadow:
+                0 0 5px #ff4500,
+                0 0 10px #ff4500,
+                0 0 20px #ff1a1a,
+                0 0 30px #ff1a1a,
+                0 0 40px #ff4500,
+                0 0 60px #ff1a1a,
+                1px 1px 0 #cc3300,
+                2px 2px 0 #aa2200,
+                3px 3px 0 #881100,
+                4px 4px 0 #660000,
+                5px 5px 0 #440000,
+                6px 6px 0 #220000,
+                7px 7px 0 #110000,
+                8px 8px 0 #000000,
+                8px 8px 15px rgba(0,0,0,0.8);
+            transition: transform 0.1s linear;
+        }
+        .search-container {
+            display: flex;
+            align-items: center;
+            border: 2px solid #ff4500;
+            padding: 10px 20px;
+            border-radius: 50px;
+            animation: neonGlowInput 4s ease-in-out infinite alternate;
+            box-shadow:
+                0 0 10px #ff4500,
+                0 0 20px #ff1a1a,
+                0 0 30px #ff4500;
+        }
+        .search-container input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 18px;
+            width: 250px;
+            font-family: 'Arial Black', sans-serif;
+            caret-color: #fff;
+        }
+        .mindfind {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+            height: 32px;
+        }
+        .mindfind svg {
+            width: 32px;
+            height: 32px;
+            stroke: #ff4500;
+            stroke-width: 2;
+            fill: none;
+            filter: drop-shadow(0 0 3px #ff4500) drop-shadow(0 0 6px #ff1a1a);
+            transition: filter 0.3s ease;
+        }
+        .mindfind:hover svg {
+            filter: drop-shadow(0 0 6px #ff4500) drop-shadow(0 0 12px #ff1a1a);
+        }
+        input:-webkit-autofill {
+            -webkit-text-fill-color: #fff !important;
+            box-shadow: 0 0 0px 1000px transparent inset !important;
+        }
+        @keyframes neonGlow {
+            from {
+                text-shadow:
+                    0 0 10px #ff4500, 0 0 20px #ff4500, 0 0 40px #ff1a1a, 0 0 80px #ff1a1a,
+                    1px 1px 0 #cc3300, 2px 2px 0 #aa2200, 3px 3px 0 #881100,
+                    4px 4px 0 #660000, 5px 5px 0 #440000, 6px 6px 0 #220000,
+                    7px 7px 0 #110000, 8px 8px 0 #000000,
+                    8px 8px 15px rgba(0,0,0,0.8);
+            }
+            to {
+                text-shadow:
+                    0 0 5px #ff4500, 0 0 10px #ff4500, 0 0 20px #ff1a1a, 0 0 40px #ff1a1a,
+                    1px 1px 0 #cc3300, 2px 2px 0 #aa2200, 3px 3px 0 #881100,
+                    4px 4px 0 #660000, 5px 5px 0 #440000, 6px 6px 0 #220000,
+                    7px 7px 0 #110000, 8px 8px 0 #000000,
+                    8px 8px 15px rgba(0,0,0,0.8);
+            }
+        }
+        @keyframes neonGlowInput {
+            from { box-shadow: 0 0 10px #ff4500, 0 0 20px #ff1a1a, 0 0 40px #ff4500; }
+            to   { box-shadow: 0 0 5px  #ff4500, 0 0 10px #ff1a1a, 0 0 20px #ff4500; }
+        }
+        .fade-text {
+            margin-top: 10px;
+            color: #ff4500;
+            font-size: 20px;
+            font-weight: bold;
+            height: 24px;
+            user-select: none;
+            min-height: 30px;
+            transform-style: preserve-3d;
+            text-shadow:
+                0 0 5px #ff4500,
+                0 0 10px #ff1a1a,
+                0 0 15px #ff4500,
+                1px 1px 0 #cc3300,
+                2px 2px 0 #aa2200,
+                3px 3px 0 #881100,
+                4px 4px 0 #660000,
+                5px 5px 0 #440000,
+                6px 6px 0 #220000,
+                6px 6px 10px rgba(0,0,0,0.7);
+            animation: fadeText3D 6s ease-in-out infinite;
+        }
+        @keyframes fadeText3D {
+            0%, 100% {
+                transform: rotateX(10deg) rotateY(2deg) translateZ(0px);
+            }
+            50% {
+                transform: rotateX(10deg) rotateY(2deg) translateZ(3px);
+            }
+        }
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body id="t">
+
+<canvas id="starfield" width="1030" height="943"></canvas>
+
+<div class="neon-text" id="tiltText" style="transform: rotateX(14.4857deg) rotateY(19.9223deg);">Sunset Learning</div>
+
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search Sunset Learning…">
+    <button onclick="searchElite()" class="mindfind" aria-label="Search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5
+                6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59
+                4.23-1.57l.27.28v.79l5 4.99L20.49
+                19l-4.99-5zm-6 0C7.01 14 5 11.99 5
+                9.5S7.01 5 9.5 5 14 7.01 14 9.5
+                11.99 14 9.5 14z"></path>
+        </svg>
+    </button>
+</div>
+
+<div class="fade-text" id="fadeText"></div>
+
+<script>
+    function searchElite() {
+        const q = document.getElementById('searchInput').value.trim();
+        if (q !== '') {
+            window.open('https://sites.google.com/search/mathreadingandmore?query=' + encodeURIComponent(q), '_blank');
+        }
+    }
+    document.getElementById('searchInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') searchElite();
+    });
+
+    const fadeText = document.getElementById('fadeText');
+    const phrases = ["The Reason We Named The Site Sunset Learning Is So Schools Thought It Was Real Learning.", "Everyone I Show This Site To Thinks I Hacked Another Site", "It used to be called fun math games", "This is a remake of the original site", "Homepage By Elite Games", "Our other site got the partner page taken down"
+
+];
+
+    let last = -1;
+    function randPhrase() {
+        let i;
+        do { i = Math.floor(Math.random() * phrases.length); } while (i === last);
+        return last = i;
+    }
+    async function typeWriter(text, el, d = 50) {
+        el.textContent = '';
+        for (let c of text) {
+            el.textContent += c;
+            await new Promise(r => setTimeout(r, d));
+        }
+    }
+    async function deleteText(el, d = 30) {
+        for (let i = el.textContent.length; i >= 0; i--) {
+            el.textContent = el.textContent.slice(0, i);
+            await new Promise(r => setTimeout(r, d));
+        }
+    }
+    (async function loop() {
+        while (true) {
+            const p = phrases[randPhrase()];
+            await typeWriter(p, fadeText);
+            await new Promise(r => setTimeout(r, 2000));
+            await deleteText(fadeText);
+            await new Promise(r => setTimeout(r, 300));
+        }
+    })();
+
+    // starfield
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    function resize() {
+        canvas.width = innerWidth;
+        canvas.height = innerHeight;
+    }
+    resize(); addEventListener('resize', resize);
+    const stars = Array.from({ length: 100 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        s: Math.random() * 2 + 1,
+        v: Math.random() * 0.5 + 0.1
+    }));
+    (function anim() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        for (let st of stars) {
+            ctx.beginPath(); ctx.arc(st.x, st.y, st.s, 0, Math.PI * 2); ctx.fill();
+            st.y += st.v; if (st.y > canvas.height) { st.y = 0; st.x = Math.random() * canvas.width; }
+        }
+        requestAnimationFrame(anim);
+    })();
+
+    // 3D tilt effect
+    const neonText = document.getElementById('tiltText');
+    document.addEventListener('mousemove', e => {
+        const x = (e.clientX / window.innerWidth - 0.5) * 40;
+        const y = (e.clientY / window.innerHeight - 0.5) * -40;
+        neonText.style.transform = `rotateX(${y}deg) rotateY(${x}deg)`;
+    });
+    document.addEventListener('touchmove', e => {
+        if (e.touches.length > 0) {
+            const t = e.touches[0];
+            const x = (t.clientX / window.innerWidth - 0.5) * 40;
+            const y = (t.clientY / window.innerHeight - 0.5) * -40;
+            neonText.style.transform = `rotateX(${y}deg) rotateY(${x}deg)`;
+        }
+    });
+</script>
+
+
+
+<script src="//www.google.com/jsapi"></script><script>window.parent.maeExportApis_();</script>
+
+
+  <meta charset="UTF-8">
+  <title>Dinosaur Game Chrome</title>
+  
+
+<style type="text/css">#button {
+  display:none;
+}
+.imgb_vis {
+  animation: imgb-animation 7s linear;
+}
+@keyframes imgb-animation {
+  10% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(100px);
+  }
+  90% {
+    transform: translateX(100px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}</style>
+<style>
+  html, body {
+    overflow: hidden;
+  }
+</style>
+
+
+
+<canvas id="snow-canvas" width="1030" height="943"></canvas>
+<style>
+  body {
+    margin: 0;
+    background: black !important;
+    overflow: hidden !important;
+  }
+  #snow-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .runner-container {
+    position: relative;
+    z-index: 1;
+  }
+</style>
+<script>
+  const snowCanvas = document.getElementById('snow-canvas');
+  const snowCtx = snowCanvas.getContext('2d');
+  let snowWidth = snowCanvas.width = window.innerWidth;
+  let snowHeight = snowCanvas.height = window.innerHeight;
+
+  const snowflakes = Array.from({ length: 150 }, () => ({
+    x: Math.random() * snowWidth,
+    y: Math.random() * snowHeight,
+    r: Math.random() * 1.5 + 0.5,
+    d: Math.random() * 0.5 + 0.1
+  }));
+
+  function drawSnow() {
+    snowCtx.clearRect(0, 0, snowWidth, snowHeight);
+    snowCtx.fillStyle = 'white';
+    snowCtx.beginPath();
+    snowflakes.forEach(flake => {
+      snowCtx.moveTo(flake.x, flake.y);
+      snowCtx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 100);
+    });
+    snowCtx.fill();
+    updateSnow();
+  }
+
+  function updateSnow() {
+    snowflakes.forEach(flake => {
+      flake.y += flake.d;
+      if (flake.y > snowHeight) {
+        flake.y = 0;
+        flake.x = Math.random() * snowWidth;
+      }
+    });
+  }
+
+  function animateSnow() {
+    drawSnow();
+    requestAnimationFrame(animateSnow);
+  }
+
+  animateSnow();
+  window.addEventListener('resize', () => {
+    snowWidth = snowCanvas.width = window.innerWidth;
+    snowHeight = snowCanvas.height = window.innerHeight;
+  });
+</script>
+
+
+
+
+
+<title>T-Rex Game</title>
+
+
+	
+	<script type="text/javascript">
+	function hideClass(name) {
+       var myClasses = document.querySelectorAll(name),
+      i = 0,
+      l = myClasses.length;
+
+      for (i; i < l; i++) {
+        myClasses[i].style.display = 'none';
+	}
+  </script></div></body></html>
