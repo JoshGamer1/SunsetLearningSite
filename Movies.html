@@ -1,0 +1,533 @@
+<html lang="en"><head><base target="_blank">
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Personal Movie Collection 🐶🎬</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #E50914; /* Netflix Red */
+            --background-dark: #141414;
+            --card-dark: #1F1F1F;
+            --text-light: #FFFFFF;
+            --text-muted: #AAAAAA;
+        }
+
+        /* Base Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Header */
+        header {
+            background-color: #000000;
+            padding: 20px 40px;
+            text-align: center;
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            letter-spacing: 2px;
+            color: var(--primary-color);
+        }
+        
+        /* Movie Grid */
+        .movie-container {
+            padding: 40px 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Movie Card */
+        .movie-card {
+            background-color: var(--card-dark);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(229, 9, 20, 0.4);
+        }
+
+        .movie-card img {
+            width: 100%;
+            height: 300px; /* Standard poster height */
+            object-fit: cover;
+            display: block;
+        }
+
+        .movie-info {
+            padding: 15px;
+            text-align: center;
+        }
+
+        .movie-info h3 {
+            margin: 0;
+            font-size: 1.1em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .play-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .movie-card:hover .play-overlay {
+            opacity: 1;
+        }
+
+        .play-button {
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid var(--text-light);
+        }
+
+        .play-button::after {
+            content: '▶';
+            color: var(--text-light);
+            font-size: 24px;
+            margin-left: 5px;
+        }
+
+        /* Modal (Pop-up Player) */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 100; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.95);
+        }
+
+/* This section creates a 16:9 box. */
+.modal-content {
+    position: relative;
+    margin: 10% auto;
+    padding: 0;
+    width: 80%;
+    max-width: 1200px;
+    height: 0;
+    /* This defines the height as 56.25% of the width (16:9 ratio) */
+    padding-bottom: 56.25%;
+    background: var(--background-dark);
+}
+
+/* This section makes the iframe stretch to fill the 16:9 box perfectly. */
+.modal-content iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    /* FIX: Setting height to 100% makes the iframe's height match the height 
+       created by the padding-bottom of the modal-content. */
+    height: 100%; 
+    border: none;
+}
+
+        .close-button {
+            color: var(--text-light);
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            font-size: 40px;
+            font-weight: bold;
+            transition: color 0.2s;
+            cursor: pointer;
+            z-index: 110; 
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            header {
+                padding: 15px 20px;
+            }
+            header h1 {
+                font-size: 1.8em;
+            }
+            .movie-container {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                padding: 20px 10px;
+            }
+            .movie-card img {
+                height: 225px;
+            }
+            .modal-content {
+                width: 95%;
+                margin: 20% auto;
+            }
+        }
+    </style>
+</head>
+<body style="overflow: auto;">
+
+    <div class="movie-container" id="movie-grid">
+        <p style="grid-column: 1 / -1; text-align: center; display: none;" id="loading-message">Loading movie posters...</p>
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/16NGJKgzxkWug08MNDvA0W0sD2qBCPJIl/preview')">
+                        <img src="https://m.media-amazon.com/images/I/91VC0lREfNL._AC_UF894,1000_QL80_.jpg" alt="31 North 62 East" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>31 North 62 East</h3>
+                        </div>
+                    </div>
+
+
+                
+       
+
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/12QU5cxX7iSLMpKclPmtVP-_WY9bXIMhS/preview')">
+                        <img src="https://m.media-amazon.com/images/M/MV5BZjRhNjE2YTUtNTQwNy00MmMxLTg2ZTMtOTNmZGQ3OWUyM2JlXkEyXkFqcGc@._V1_.jpg" alt="3 from Hell" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>3 from Hell</h3>
+                        </div>
+                    </div>
+
+
+                
+       
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/1wACHkreo20utBm3-b3hmb6mO58-AfqJT/preview')">
+                        <img src="https://m.media-amazon.com/images/M/MV5BMjEzNjM4OTc5Ml5BMl5BanBnXkFtZTcwMDYxMTIzMQ@@._V1_.jpg" alt="A Boy Named Charlie Brown" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>A Boy Named Charlie Brown</h3>
+                        </div>
+                    </div>
+
+
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/1Tsmb_pRgleOTXo6bAltJ6VDWDmf25Jwa/preview')">
+                        <img src="https://m.media-amazon.com/images/M/MV5BNTZmN2VlMWMtMTdlMi00NDBhLWIyODMtODEwMzM0ODMwMWYwXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" alt="A Nightmare on Elm Street" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>A Nightmare on Elm Street</h3>
+                        </div>
+                    </div>
+
+
+                
+
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/17HLx_cEKFN_CwSGSoCjX27bB-Ynz8xRq/preview')">
+                        <img src="https://m.media-amazon.com/images/M/MV5BYzA0OTk4OWQtYWZlYy00Y2M4LWFmNzctZmU4OWVkMTI1NjJkXkEyXkFqcGc@._V1_.jpg" alt="A Nightmare on Elm Street 2" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>A Nightmare on Elm Street 2 Freddy's Revenge</h3>
+                        </div>
+                    </div>
+
+
+                
+
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/1HbRwUQ8YTbjZ1qaRrB23f8bdBCgbaGFw/preview')">
+                        <img src="https://m.media-amazon.com/images/M/MV5BYWMwMmQxZjUtNDFkYi00MjU3LThhNmYtMmU4YzgyMmYwZWZlXkEyXkFqcGc@._V1_.jpg" alt="A Nightmare on Elm Street" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>A Nightmare on Elm Street 3 Dream Warriors</h3>
+                        </div>
+                    </div>
+
+
+                
+
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/127PFUmzGoYU6n2qrvmbtXqHjev3rz_TL/preview')">
+                        <img src="https://m.media-amazon.com/images/M/MV5BY2FlMDZlNjUtM2QyYS00Y2YyLWI3ZjEtZDdjZWM5ZTg0MDRiXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" alt="A Nightmare on Elm Street 4" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>A Nightmare on Elm Street 4 The Dream Master</h3>
+                        </div>
+                    </div>
+
+
+                
+
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/16EYEuQa7aZVhqsUIF-NR8q8vqBailLsp/preview')">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e8/A_Nightmare_on_Elm_Street_5_-_The_Dream_Child_-US_poster.jpg/250px-A_Nightmare_on_Elm_Street_5_-_The_Dream_Child_-US_poster.jpg" alt="A Nightmare on Elm Street 5" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>A Nightmare on Elm Street 5 The Dream Child</h3>
+                        </div>
+                    </div>
+
+
+                
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/1ify_EMaQW-ZAn2F0STztn2AGU-jE7aHL/preview')">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/f/f3/A_Goofy_Movie_poster.jpg" alt="A goofy movie" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>A Goofy Movie</h3>
+                        </div>
+                    </div>
+
+
+
+                
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/1HmKWJDZcuVBi0yRs3PyKB7UXifbYgy9q/preview')">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/8/84/Ace_ventura_pet_detective.jpg" alt="Ace Ventura Pet Detective" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>Ace Ventura Pet Detective</h3>
+                        </div>
+                    </div>
+
+
+
+                
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/1Sofu_Y64wUhcyL_ZAFq6l58z-MZK8CTu/preview')">
+                        <img src="https://m.media-amazon.com/images/M/MV5BMzQxODE4MzEyNF5BMl5BanBnXkFtZTgwNjk2OTY4ODE@._V1_.jpg" alt="Air Bud" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>Air Bud</h3>
+                        </div>
+                    </div>
+
+
+
+                
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/1t9CveoDazqi1K1r_9UsjoFSTIs6NW6Wu/preview')">
+                        <img src="https://m.media-amazon.com/images/M/MV5BNjcxMzQ2NDM0NF5BMl5BanBnXkFtZTgwOTI4OTY4ODE@._V1_FMjpg_UX1000_.jpg" alt="Air Bud Golden Receiver" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>Air Bud Golden Receiver</h3>
+                        </div>
+                    </div>
+
+
+
+                
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/1owmv82k9nNXf8v4k90GJYqYE7oWUBKpu/preview')">
+                        <img src="https://m.media-amazon.com/images/M/MV5BN2NhMDk2MmEtZDQzOC00MmY5LThhYzAtMDdjZGFjOGZjMjdjXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" alt="Alien" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>Alien</h3>
+                        </div>
+                    </div>
+
+
+
+                
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/15j2lph1iEm-3mWnKcjaVUxkodInyFLsL/preview')">
+                        <img src="https://m.media-amazon.com/images/M/MV5BNzdiYTA4NGMtMTY0ZS00YTBlLThlMzMtNGZlYTg2OTgxZGFlXkEyXkFqcGc@._V1_.jpg" alt="Annie" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>Annie</h3>
+                        </div>
+                    </div>
+
+
+
+
+                
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/11kIA5YMOUUPgNsNJWsiXSIXS7hIK04uj/preview')">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/f/f2/Airbuddies.jpg" alt="Air Buddies" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>Air Buddies</h3>
+                        </div>
+                    </div>
+
+
+
+
+
+                
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/1XLbBFM6yQ48V1yXIfrenbhpMyZeUryV7/preview')">
+                        <img src="https://m.media-amazon.com/images/M/MV5BNzBjM2I5ZjUtNmIzNy00OGNkLWIwZDMtOTAwYWUwMzA2YjdlXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" alt="American Psycho" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>American Psycho</h3>
+                        </div>
+                    </div>
+
+
+
+
+
+                
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/14ksjNU4K06d4hmBgURx_Oh9JD_Nzpb5I/preview')">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/0/04/ExtremelyGoofyMovieDVD.jpg/250px-ExtremelyGoofyMovieDVD.jpg" alt="An Extremely Goofy Movie" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>An Extremely Goofy Movie</h3>
+                        </div>
+                    </div>
+
+
+
+
+
+                
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/17_XUxmKASt0nWlxEC357z3i7CTXiiMD-/preview')">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/5/5b/Atomic_Twister_print_ad.jpg" alt="Atomic Twister" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>Atomic Twister</h3>
+                        </div>
+                    </div>
+
+
+
+
+
+                
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/1hu_qz3yufiAI37-lYec6TjEijtIaW320/preview')">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/9/9d/Austin_Powers_in_Goldmember.jpg" alt="Austin Powers in Goldmember" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>Austin Powers in Goldmember</h3>
+                        </div>
+                    </div>
+
+
+
+
+
+                
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/1jaFUdeuXXUQ5jEznbJVC558MrB_COmjv/preview')">
+                        <img src="https://m.media-amazon.com/images/M/MV5BNTczMjMwMTE2OV5BMl5BanBnXkFtZTcwNDU0NTAwNw@@._V1_.jpg" alt="Arthur Christmas" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>Arthur Christmas</h3>
+                        </div>
+                    </div>
+
+
+
+
+
+                
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/1WqwxGkOyDRfuo985rc-zmwyMvqu4K-D-/preview')">
+                        <img src="https://m.media-amazon.com/images/M/MV5BNjkyMDU5ZWQtZDhkOC00ZWFjLWIyM2MtZWFhMDUzNjdlNzU2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" alt="Annabelle" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-button"></div>
+                        </div>
+                        <div class="movie-info">
+                            <h3>Annabelle</h3>
+                        </div>
+                    </div>
+
+
+
+
+
+                
+                
+    
+                    <div class="movie-card" onclick="openPlayer('https://drive.google.com/file/d/1mHYQrlCCmOUjKJTWaSMeQWJTVmND80Z3/preview')">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSaqR7ok1-kMoucykmT2QWmBC9HMOg-DnA8w&s" alt="Annie (2014)" loading="lazy">
+           
